@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx --watch ./src/server.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "knex": "npx --loader ts-node ./node_modules/.bin/knex "
   },
   "keywords": [],
   "author": "",
