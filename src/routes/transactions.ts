@@ -2,28 +2,33 @@ import { FastifyInstance } from "fastify";
 import { knex } from "../database";
 import { z } from "zod";
 import { randomUUID } from "crypto";
-import { request } from "http";
+import { checkSessionIdExists } from "../middlewares/check-session-id-exist";
 
 export async function transactionsRoutes(app: FastifyInstance) {
-    
-    app.get('/summary', async (request, reply) => {
-        const summary = await knex('transactions')
-        .sum('amount', { as: 'amount' })
-        .first();
 
-        return { summary };
-    })
+    app.get(
+    '/', 
+    {
+        preHandler: [checkSessionIdExists],
 
-    app.get('/', async () => {
+    },async (request, reply) => {
+        const { sessionId } = request.cookies;
+
         const transactions = await knex('transactions')
-            .select()
+        .where('session_id', sessionId)    
+        .select()
 
         return {
             transactions
         };
     });
 
-    app.get('/:id', async (request) => {
+    app.get(
+        '/:id',
+        {
+            preHandler: [checkSessionIdExists],
+        }, async (request) => {
+        const { sessionId } = request.cookies;
 
         const getTransactionsParamsSchema = z.object({
             id: z.string().uuid(),
@@ -31,10 +36,29 @@ export async function transactionsRoutes(app: FastifyInstance) {
 
         const { id } = getTransactionsParamsSchema.parse(request.params);
 
-        const transactions = await knex('transactions').where('id', id).first();
+        const transactions = await knex('transactions')
+            .where('id', id)    
+            .andWhere('session_id', sessionId)
+            .first();
 
         return { transactions };
     });
+
+    app.get(
+        '/summary', 
+        {
+            preHandler: [checkSessionIdExists],
+    
+        },async (request, reply) => {
+            const { sessionId } = request.cookies;
+    
+            const summary = await knex('transactions')
+            .where('session_id', sessionId)    
+            .sum('amount', { as: 'amount' })
+            .first();
+     
+            return { summary };
+        })
     
     app.post('/', async (request, reply) => {
 
