@@ -1,6 +1,12 @@
-db/app.db
+#database
+db/*.db
+
+#Environment
 .env
 .env.test
+
+#Build
+build
 
 # Logs
 logs
