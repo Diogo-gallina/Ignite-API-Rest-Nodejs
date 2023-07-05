@@ -1,5 +1,6 @@
 db/app.db
 .env
+.env.test
 
 # Logs
 logs
