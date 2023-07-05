@@ -5,11 +5,13 @@ if(!process.env.DATABASE_URL){
     throw new Error('DATABASE_URL env not found.')
 }
 
+const connectionDb =  env.DATABASE_CLIENT === 'sqlite'? {
+    filename: env.DATABASE_URL,
+} : env.DATABASE_URL
+
 export const config: Knex.Config = { 
-    client: 'sqlite',
-    connection: {
-        filename: env.DATABASE_URL,
-    },
+    client: env.DATABASE_CLIENT,
+    connection: connectionDb,
     useNullAsDefault: true,
     migrations:{
         extension: 'ts',
